@@ -1,9 +1,11 @@
-package com.gh.question.question;
+package com.gh.question;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
+@MapperScan(basePackages = "com.gh.question.mapper")
 public class QuestionApplication {
 
     public static void main(String[] args) {
