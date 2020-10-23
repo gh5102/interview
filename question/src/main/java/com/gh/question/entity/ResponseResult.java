@@ -2,6 +2,9 @@ package com.gh.question.entity;
 
 import com.gh.question.enums.ResultCode;
 
+/**
+ * @author guohao
+ */
 public class ResponseResult<T> {
 
     //返回状态码200成功
