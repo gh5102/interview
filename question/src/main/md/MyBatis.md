@@ -31,3 +31,36 @@ Dao接口的工作原理是JDK动态代理，Mybatis运行时会使用JDK动态�
 Mybatis使用RowBounds对象进行分页，它是针对ResultSet结果集执行的内存分页，而非物理分页，可以在sql内直接书写带有物理分页的参数来完成物理分页功能，也可以使用分页插件来完成物理分页。
 分页插件的基本原理是使用Mybatis提供的插件接口，实现自定义插件，在插件的拦截方法内拦截待执行的sql，然后重写sql，根据dialect方言，添加对应的物理分页语句和物理分页参数。
 举例：select * from student，拦截sql后重写为：select t.* from （select * from student）t limit 0，10
+
+7、mybatis执行流程
+：配置数据库连接信息
+：配置mapper映射全限定名称路径信息
+：配置mapper
+配置提供信息：连接信息
+             映射信息
+                ：执行的SQL语句
+                ：封装结果的实体全限定类名
+
+//读取配置文件：dom4j解析xml
+//执行查询分析
+①根据配置文件的信息创建connection对象
+注册驱动，获取连接
+②获取预处理对象prepared Statement
+此时需要sql语句
+③执行查询
+ResultSet result = preparedStatement.executeQuery()
+④遍历结果集用于封装
+List<E> list = new ArrayList();
+进行封装，把每个rs的内容都添加到element中
+while(resultSet.next()){
+    E element = Class.forName("配置类全限定类名);
+    进行封装，把每个rs的内容都添加到element中
+    我们的实体类属性和表的列名是一致的
+    于是我们就可以把表的列名看成是实体类的属性名称
+    就可以使用反射的方式来根据名称获取每个属性，并把值赋进去
+    把element加入到list中
+    list.add(element);
+⑤返回list
+
+
+

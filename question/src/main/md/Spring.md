@@ -34,3 +34,148 @@ Spring AOP中的动态代理主要有两种方式，JDK动态代理和CGLIB动�
 根据配置文件在运行时动态的去创建对象以及管理对象，并调用对象的方法的。
 （3）Spring的IOC有三种注入方式 ：构造器注入、setter方法注入、根据注解注入。
 IoC让相互协作的组件保持松散的耦合，而AOP编程允许你把遍布于应用各层的功能分离出来形成可重用的功能组件。
+
+
+
+
+--------------------------------
+Spring
+1、获取spring的IOC核心容器，并根据id获取对象
+ApplicationContext：
+    ClassPathXmlApplication:加载类路径下的配置文件，必须在类路径下
+    FileSystemXmlApplicationContext:可以加载任意路径配置文件（必须有访问权限）
+    AnnotationConfigApplicationContext:读取注解创建容器
+核心容器的两个接口：
+    ApplicationContext:
+        创建对象采用饿汉模式，读取文件时直接创建
+    BeanFactory:
+        创建对象时采用懒汉模式，使用时加载
+2、把对象的创建交给spring管理
+    spring对bean的管理细节
+    创建bean的三种方式
+        ①使用默认构造函数创建
+            在spring的配置文件中使用bean标签，配id和class属性
+            采用默认构造函数创建bean对象
+        ②使用普通工厂中的方法创建对象（使用某个类的方法创建并放入容器）
+        ③使用静态工厂的静态方法创建对象（使用某个类中的静态方法创建对象）
+    bean对象的作用范围
+        bean标签的scope属性
+            作用：指定bean的作用范围
+            取值：single：单例（默认）
+                  prototype:多例
+                  request：作用于web应用的请求范围
+                  session：作用于web的会话范围
+                  global-session：作用于集群环境的会话范围（全局会话范围），不是集群时，=session
+    bean对象的生命周期
+        单例对象
+            出生：当容器创建时对象创建
+            活着：容器存在，一直存活
+            死忙：容器销毁，对象消失
+            总结：单例对象的生命周期和容器相等
+        多例对象
+            出生：当使用时创建
+            活着：对象只要使用中一直存活
+            死忙：当对象长时间不用，由Java垃圾回收器回收
+3、spring的依赖注入
+    依赖注入：
+    IOC的作用：
+        降低程序间的耦合（依赖关系）
+    依赖关系的管理：
+        交给spring来维护
+    在当前需要其他类的对象，由spring为我们提供，只需在配置文件中说明
+    依赖注入：
+        能注入的数据：三类
+            基本类型和String
+            bean类型（在配置文件中或注释配置过的bean）
+            复杂类型/集合类型
+        注入方式：
+            使用构造函数注入
+            使用set方法注入
+            使用注解注入  
+4、注解
+需配置包扫描：
+    标签在context名称空间和约束中
+spring
+①用于创建对象的
+    他们的作用等价于XML配置里的bean标签
+    Component:Controller、Service、Repository
+        作用：把当前类对象存入spring容器中
+        属性：
+            value:指定bean标签中id，不写时，默认是当前类名，首字母小写
+②用于注入数据的
+    等价于xml配置文件里bean标签下的property
+    Autowired:
+        作用：自动按照类型注入，只要容器中有唯一的一个bean对象类型和注入类型匹配
+        如果ioc容器中无任何bean与该类型匹配，报错
+        如果多个类型匹配时：
+    出现位置：
+        可以是变量上，也可以是方法上
+    细节：
+        在使用注解注入时，set方法就不是必须的了。
+    Qualifier：
+        作用：在按照类型注入的基础之上再按照名称注入。它在给类成员注入时不能单独使用。
+              但是在给方法参数注入
+        属性：
+            value：用于指定bean的id
+    Resource：
+        作用：直接按照bean的id注入，它可以独立使用
+        属性：
+            name:用于指定bean的id
+     以上三种只能注入其他bean类型的数据，基本类型和string类型无法使用以上注解
+     ps:集合类型的注入只能通过xml来实现
+     Value：
+        作用：用于注入基本类型和String类型的数据
+        属性：
+            value：用于指定数据的值，它可以使用spring的SpELl（也就是spring的el表达式）
+                SpEL的写法：${表达式}
+③用于改变作用范围的
+    等价与xml里bean标签中scope属性实现的功能是一样的
+    Scope
+        作用：指定bean的作用范围
+        属性：
+            value 常用 singleton prototype
+④和生命周期相关
+    他们的作用就是和bean标签的init-method和destroy-method的作用
+    PreDestroy
+        作用：指定销毁方法
+    PostConstruct:
+        作用：用于指定初始化方法
+    ·       
+              
+⑤配置类
+    @Configuration
+        作用：指定当前类是一个配置类
+        细节：当配置类作为AnnotationConfigApplicationContext时可以不写
+    @Component Scans
+        作用：用于通过注解指定要扫描的包
+        属性：
+            value：它和basePackage的作用一样，指定创建容器时要扫描的包0000
+    @Bean
+        作用：把当前方法的返回值作为bean对象放入spring的ioc容器中
+        属性：
+            name:用于指定bean的id。当不写时，默认是当前方法的名称
+        细节：
+            使用注解配置时，如果方法有参数，spring框架会去容器中查找有没有
+            可用的bean对象，查找方式等价于auto wired注解的查找
+    @Import
+        作用：用于导入其他的配置类
+        属性：
+            value：用于指定其他配置类的字节码
+                   使用import注解，有import注解类为父配置类，导入的为子配置类           
+    @PropertySource
+        作用：用于指定properties文件的路径
+        属性
+            value：指定文件的名称和路径
+                classpath:类路径
+                
+5、spring整合junit
+使用junit单元测试，测试配置
+Spring整合junit的配置
+    1、导入spring整合junit的jar
+    2、使用Junit提供的一个注解   把原来的main方法替换了，替换成spring提供的
+        @RunWith
+    3、告知spring的运行器，spring和ioc创建是基于xml还是基于注解的，并且说明位置
+        @ContextConfiguration
+            location:指定xml文件所在的位置，加上classpath关键字，表示在类路径下
+            classes：指定注解类所在的位置
+    
